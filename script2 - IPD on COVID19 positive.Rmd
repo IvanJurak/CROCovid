@@ -1,0 +1,62 @@
+---
+title: "script1"
+author: "Ivan Jurak"
+date: '09 07 2020 '
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Installing packages
+```{r}
+install.packages("jsonlite") 
+install.packages("tidyverse")
+```
+
+### Loading packages
+```{r}
+library(jsonlite) 
+library(tidyverse)
+```
+
+### Data scraping and dataframe loading
+```{r}
+json_IPD <- "https://www.koronavirus.hr/json/?action=po_osobama" 
+df_IPD<- fromJSON(json_IPD) #individual patient data
+```
+
+### Renaming variables and values from Croatian to English
+```{r}
+#Renaming variables
+df_IPD <- df_IPD %>% 
+        rename(
+                gender = spol,
+                age = dob,
+                calendar_date = Datum,
+                county = Zupanija
+                )
+
+#Renaming values for gender
+df_IPD <- df_IPD %>% mutate(gender = recode(gender,
+                                         "M" = "Male",
+                                         "Ž" = "Female"))
+
+#Converting calendar_date fro chr to date format
+df_IPD$calendar_date <- as.Date(df_IPD$calendar_date, tryFormats = "%Y-%m-%d")
+```
+
+### Exporting dataframe to external csv file
+```{r}
+write.csv(df_IPD, "IPD on COVID-19 positive.csv")
+```
+
+
+
+
+
+
+
+
+

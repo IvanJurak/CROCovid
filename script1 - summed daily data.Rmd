@@ -1,0 +1,61 @@
+---
+title: "script1"
+author: "Ivan Jurak"
+date: '09 07 2020 '
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Installing packages
+```{r}
+install.packages("jsonlite") 
+install.packages("tidyverse")
+```
+
+### Loading packages
+```{r}
+library(jsonlite) 
+library(tidyverse)
+```
+
+### Data scraping and dataframe loading
+```{r}
+json_SDD <- "https://www.koronavirus.hr/json/?action=podaci" 
+df_SDD  <- fromJSON(json_SDD) #summed daily data
+```
+
+### Renaming variables from Croatian to English
+```{r}
+df_SDD <- df_SDD %>% 
+        rename(
+                cases_worldwide = SlucajeviSvijet,
+                cases_Croatia = SlucajeviHrvatska,
+                deaths_worldwide = UmrliSvijet,
+                deaths_Croatia = UmrliHrvatska,
+                cured_worldwide = IzlijeceniSvijet,
+                cured_Croatia = IzlijeceniHrvatska,
+                calendar_date = Datum
+                )
+
+#Converting calendar_date fro chr to date format
+df_SDD$calendar_date <- as.Date(df_SDD$calendar_date, tryFormats = "%Y-%m-%d")
+
+#NOTE: The as.Date function discards hours and minutes information. Since there are no intra-day information that is of no consequence. However, if you wnat to preserve hours and minutes information use POSIXlt. For more information run: help(DateTimeClasses)  
+```
+
+### Exporting dataframe to external csv file
+```{r}
+write.csv(df_SDD, "summed daily data CRO.csv")
+```
+
+
+
+
+
+
+
+
+
